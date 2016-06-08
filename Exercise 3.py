@@ -1,6 +1,12 @@
 import sys
 from pyspark import SparkContext
 
+import plotly
+plotly.tools.set_credentials_file(username='DemoAccount', api_key='lr1c37zw81')
+import plotly.graph_objs as go
+
+import numpy as np
+
 def get_arrival_airport(line):
 	line_split=line.split("^")
 	airport=line_split[12]
@@ -71,7 +77,32 @@ if __name__=="__main__":
 
 	sorted_airports=total_airport_pax_month.sortByKey(ascending=False).collect()
 
+	coordinate_x=np.linspace(1,12,12)
+	coordinate_y_AGP=np.linspace(1,12,12)
+	coordinate_y_BCN=np.linspace(1,12,12)
+	coordinate_y_MAD=np.linspace(1,12,12)
+
+
 	for i_airport in range(len(sorted_airports)):
 		airport=sorted_airports[i_airport]
+		airport_split_0=airport[0].split("^")[0]
+		airport_split_1=airport[0].split("^")[1]
+		if airport_split_0=='AGP':
+			coordinate_y_AGP[int(airport_split_1)-1]=airport[1]
+		if airport_split_0=='BCN':
+			coordinate_y_BCN[int(airport_split_1)-1]=airport[1]
+		if airport_split_0=='MAD':
+			coordinate_y_MAD[int(airport_split_1)-1]=airport[1]
 		print("Airport "+str(i_airport+1)+" : "+airport[0]+" with "+str(airport[1])+" passengers")
+	print("AGP : ",coordinate_y_AGP)
+	print("BCN : ",coordinate_y_BCN)
+	print("MAD : ",coordinate_y_MAD)
+	trace_AGP=go.Scatter(x=coordinate_x,y=coordinate_y_AGP,mode='line+markers',name='AGP')
+	trace_BCN=go.Scatter(x=coordinate_x,y=coordinate_y_BCN,mode='line+markers',name='BCN')
+	trace_MAD=go.Scatter(x=coordinate_x,y=coordinate_y_MAD,mode='line+markers',name='MAD')
+
+	traces=[trace_AGP,trace_BCN,trace_MAD]
+
+	url=plotly.plotly.plot(traces,filename='airports_monthes')
+	print("plot_URL : ",url)
 	input("pause")
