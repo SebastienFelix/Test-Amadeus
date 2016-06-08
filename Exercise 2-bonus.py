@@ -6,14 +6,15 @@ geo_a = GeoBase(data='airports', verbose=False)
 
 def get_arrival_airport(line):
 	line_split=line.split("^")
+	if len(line_split)<35:
+		airport=line_split[10]
+		return airport.split(" ")[0]
 	airport=line_split[12]
 	return airport.split(" ")[0]
 
 def get_pax(line):
 	line_split=line.split("^")
 	if len(line_split)<35:
-		print("len(line_split) = ",len(line_split))
-		print("line split = ",line_split)
 		return int(line_split[len(line_split)-4])
 	return int(line_split[34])
 
@@ -34,7 +35,7 @@ def is_valid_line(line):
 
 if __name__=="__main__":
 	if len(sys.argv) < 2:
-		print >> sys.stderr, "Usage: Exo2 <file>"
+		print >> sys.stderr, "Usage: Exercise 2-bonus <file>"
 		exit(-1)
         
 	sc=SparkContext()
